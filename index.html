@@ -212,31 +212,40 @@
     }
 
     function placeWord(word) {
-      let placed = false;
-      while (!placed) {
-        const vertical = Math.random() < 0.5;
-        const row = Math.floor(Math.random() * (vertical ? gridSize - word.length : gridSize));
-        const col = Math.floor(Math.random() * (vertical ? gridSize : gridSize - word.length));
-        let canPlace = true;
-        for (let i = 0; i < word.length; i++) {
-          const r = vertical ? row + i : row;
-          const c = vertical ? col : col + i;
-          if (grid[r][c] && grid[r][c] !== word[i]) {
-            canPlace = false;
-            break;
-          }
-        }
-        if (canPlace) {
-          for (let i = 0; i < word.length; i++) {
-            const r = vertical ? row + i : row;
-            const c = vertical ? col : col + i;
-            grid[r][c] = word[i];
-          }
-          placed = true;
-        }
+    function placeWord(word) {
+  let placed = false;
+  const directions = [
+    { dr: 0, dc: 1 },   // → horizontal
+    { dr: 1, dc: 0 },   // ↓ vertical
+    { dr: 1, dc: 1 },   // ↘ diagonal
+    { dr: 1, dc: -1 }   // ↙ diagonal invertida
+  ];
+
+  while (!placed) {
+    const { dr, dc } = directions[Math.floor(Math.random() * directions.length)];
+    const row = Math.floor(Math.random() * gridSize);
+    const col = Math.floor(Math.random() * gridSize);
+
+    let canPlace = true;
+    for (let i = 0; i < word.length; i++) {
+      const r = row + dr * i;
+      const c = col + dc * i;
+      if (r < 0 || r >= gridSize || c < 0 || c >= gridSize || (grid[r][c] && grid[r][c] !== word[i])) {
+        canPlace = false;
+        break;
       }
     }
 
+    if (canPlace) {
+      for (let i = 0; i < word.length; i++) {
+        const r = row + dr * i;
+        const c = col + dc * i;
+        grid[r][c] = word[i];
+      }
+      placed = true;
+    }
+  }
+    }
     function fillEmpty() {
       const letters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
       for (let r = 0; r < gridSize; r++) {
